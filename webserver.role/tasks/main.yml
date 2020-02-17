@@ -1,0 +1,43 @@
+- name: Install Nginx
+  apt: 
+    name: nginx 
+    state: latest 
+- name: adding existing user to group www-data
+  user:
+    name: ubuntu
+    groups: www-data
+    append: yes
+- name: Copy Nginx File
+  copy:
+    src: default 
+    dest: /etc/nginx/sites-available/default
+    owner: ubuntu
+    group: www-data
+    mode: 0755
+- name: Extract myproject.tar to /var/www/html
+  unarchive:
+    src: myproject.tar
+    dest: /var/www/html/
+    owner: ubuntu
+    group: www-data
+    mode: 0755
+- name: Copy Service File
+  copy:
+    src: gunicorn.service 
+    dest: /etc/systemd/system/
+    owner: ubuntu
+    group: www-data
+    mode: 0755
+- name: daemon-reload 
+  systemd:
+    daemon_reload: yes
+- name: Start gunicorn
+  service:
+    name: gunicorn
+    state: started
+    enabled: yes
+- name: Start Nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
